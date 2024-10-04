@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Espace entre les deux conteneurs */
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0; /* Supprime le margin par défaut */
+            padding: 20px; /* Ajoute un padding autour de la page */
+        }
+        .admin-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 45%; /* Ajuste la largeur pour laisser de l'espace */
+            max-width: 400px; /* Largeur maximale */
+        }
+        .color-button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2em;
+        }
+        .color-button.gray { background-color: gray; }
+        .color-button.red { background-color: red; }
+        .color-button.green { background-color: green; }
+        .color-button.blue { background-color: blue; }
+        .color-button.black { background-color: black; }
+        .tours-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px; /* Espace entre les colonnes */
+            margin-top: 20px;
+        }
+        .tour-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 10px;
+            background-color: gray; /* Couleur par défaut */
+        }
+        .button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        #status-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: white;
+            margin-top: 20px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap; /* Permet le passage à la ligne */
+            justify-content: center; /* Centre les boutons */
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <h1>Superscan</h1>
+    <div>
+        <button class="button" onclick="activate('C:/0')">C:/0 Activation</button>
+        <button class="button" onclick="activate('Inconnu')">Inconnu Activation</button>
+        <button class="button" onclick="activate('Safe')">Safe Activation</button>
+        <button class="button" onclick="activate('Low Battery')">Low Battery</button>
+        <button class="button" onclick="activate('Neutre')">Neutre</button>
+    </div>
+    <div>
+        <input type="text" id="text1" placeholder="Saisir du texte" oninput="saveText()">
+        <input type="text" id="text2" placeholder="Saisir du texte" oninput="saveText()">
+    </div>
+    <div id="status-circle"></div>
+</div>
+
+<div class="admin-container">
+    <h2>Page Admin</h2>
+    <p>Modifier la couleur des tours</p>
+
+    <!-- Conteneur pour afficher les 10 tours en grille -->
+    <div class="tours-grid" id="tours-container">
+        <script>
+            for (let i = 1; i <= 10; i++) {
+                document.write(`
+                <div class="tour-container">
+                    <span>Tour ${i} :</span>
+                    <button class="color-button gray" onclick="changeCircleColor(${i}, 'gray')">Gray</button>
+                    <button class="color-button red" onclick="changeCircleColor(${i}, 'red')">Red</button>
+                    <button class="color-button green" onclick="changeCircleColor(${i}, 'green')">Green</button>
+                    <button class="color-button blue" onclick="changeCircleColor(${i}, 'blue')">Blue</button>
+                    <button class="color-button black" onclick="changeCircleColor(${i}, 'black')">Black</button>
+                    <div id="circle${i}" class="circle"></div>
+                </div>
+                `);
+            }
+        </script>
+    </div>
+</div>
+
+<script>
+    // Fonction pour changer la couleur du cercle
+    function activate(action) {
+        const circle = document.getElementById('status-circle');
+        if (action === 'C:/0') {
+            circle.style.backgroundColor = 'red';
+        } else if (action === 'Inconnu') {
+            circle.style.backgroundColor = 'gray';
+        } else if (action === 'Safe') {
+            circle.style.backgroundColor = 'green';
+        } else if (action === 'Low Battery') {
+            circle.style.backgroundColor = 'black';
+        } else if (action === 'Neutre') {
+            circle.style.backgroundColor = 'blue';
+        }
+        // Stocker le statut dans le localStorage
+        localStorage.setItem('status', action);
+    }
+
+    // Fonction pour changer la couleur des cercles dans l'admin et enregistrer dans localStorage
+    function changeCircleColor(tourNumber, color) {
+        localStorage.setItem(`tour${tourNumber}-color`, color);
+        document.getElementById(`circle${tourNumber}`).style.backgroundColor = color; // Mettre à jour le cercle dans l'admin
+        console.log(`Tour ${tourNumber} couleur modifiée : ${color}`);
+    }
+
+    // Fonction pour sauvegarder le texte
+    function saveText() {
+        const text1 = document.getElementById('text1').value;
+        const text2 = document.getElementById('text2').value;
+        localStorage.setItem('text1', text1);
+        localStorage.setItem('text2', text2);
+    }
+
+    // Charger les textes et couleurs existants à partir du localStorage
+    window.onload = function() {
+        document.getElementById('text1').value = localStorage.getItem('text1') || '';
+        document.getElementById('text2').value = localStorage.getItem('text2') || '';
+
+        const status = localStorage.getItem('status');
+        if (status) {
+            activate(status); // Appliquer la couleur en fonction du statut
+        }
+
+        // Initialiser les couleurs des cercles lors du chargement de la page admin
+        for (let i = 1; i <= 10; i++) {
+            const color = localStorage.getItem(`tour${i}-color`) || 'gray'; // Si la couleur n'est pas définie, par défaut c'est gray
+            document.getElementById(`circle${i}`).style.backgroundColor = color; // Appliquer la couleur
+        }
+    }
+</script>
+
+</body>
+</html>
